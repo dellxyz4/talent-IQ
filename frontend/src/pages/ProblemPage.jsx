@@ -7,7 +7,7 @@ import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 import ProblemDescription from "../components/ProblemDescription";
 import OutputPanel from "../components/OutputPanel";
 import CodeEditorPanel from "../components/CodeEditorPanel";
-import { executeCode } from "../lib/piston";
+import { executeCode } from "../lib/judge0";
 
 import toast from "react-hot-toast";
 import confetti from "canvas-confetti";
@@ -18,7 +18,9 @@ function ProblemPage() {
 
   const [currentProblemId, setCurrentProblemId] = useState("two-sum");
   const [selectedLanguage, setSelectedLanguage] = useState("javascript");
-  const [code, setCode] = useState(PROBLEMS[currentProblemId].starterCode.javascript);
+  const [code, setCode] = useState(
+    PROBLEMS[currentProblemId].starterCode.javascript,
+  );
   const [output, setOutput] = useState(null);
   const [isRunning, setIsRunning] = useState(false);
 
@@ -40,7 +42,8 @@ function ProblemPage() {
     setOutput(null);
   };
 
-  const handleProblemChange = (newProblemId) => navigate(`/problem/${newProblemId}`);
+  const handleProblemChange = (newProblemId) =>
+    navigate(`/problem/${newProblemId}`);
 
   const triggerConfetti = () => {
     confetti({
@@ -64,11 +67,15 @@ function ProblemPage() {
       .map((line) =>
         line
           .trim()
+          // fix: normalize single quotes to double quotes
+          .replace(/'/g, '"')
           // remove spaces after [ and before ]
           .replace(/\[\s+/g, "[")
           .replace(/\s+\]/g, "]")
           // normalize spaces around commas to single space after comma
           .replace(/\s*,\s*/g, ",")
+          // ← also fix: your expected has ", " not ","
+          .replace(/\s*,\s*/g, ", "),
       )
       .filter((line) => line.length > 0)
       .join("\n");
@@ -76,7 +83,9 @@ function ProblemPage() {
 
   const checkIfTestsPassed = (actualOutput, expectedOutput) => {
     const normalizedActual = normalizeOutput(actualOutput);
+    console.log("normalizedActual of code: \n", normalizedActual);
     const normalizedExpected = normalizeOutput(expectedOutput);
+    console.log("normalizedExpected of code: \n", normalizedExpected);
 
     return normalizedActual == normalizedExpected;
   };
@@ -93,8 +102,11 @@ function ProblemPage() {
 
     if (result.success) {
       const expectedOutput = currentProblem.expectedOutput[selectedLanguage];
+
+      console.log("expectedOutput of code: \n", expectedOutput);
       const testsPassed = checkIfTestsPassed(result.output, expectedOutput);
 
+      console.log("testsPassed of code: \n", testsPassed);
       if (testsPassed) {
         triggerConfetti();
         toast.success("All tests passed! Great job!");
