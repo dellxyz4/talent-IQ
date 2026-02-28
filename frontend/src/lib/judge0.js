@@ -1,4 +1,4 @@
-import { Buffer } from "buffer/";
+import { Buffer } from "buffer";
 
 const JUDGE0_API = "https://judge029.p.rapidapi.com";
 const RAPIDAPI_KEY = import.meta.env.VITE_RAPIDAPI_KEY;
@@ -9,11 +9,12 @@ const LANGUAGE_MAP = {
   java: { id: 62, name: "Java (OpenJDK 13.0.1)" },
 };
 
-const encode = (str) => {
-  return Buffer.from(str, "utf-8").toString("base64");
-};
+const encode = (str) => Buffer.from(str, "utf-8").toString("base64");
 
 const decode = (str) => {
+  console.log("decode str: \n", str);
+  if (!str) return "";
+  if (typeof str !== "string") return JSON.stringify(str);
   return Buffer.from(str, "base64").toString("utf-8");
 };
 
